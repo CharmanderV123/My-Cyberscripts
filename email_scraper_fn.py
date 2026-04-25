@@ -5,6 +5,7 @@ from collections import deque
 def email_scraper(data:list[str]):
     # for target_url in list:
         url_list=[]
+        filter =['info','contact','support','help','admin','sales','enquiries','enquiry','contactus','contact-us','contactus','contact_us','mail','email']
         urls = deque([data])
 
         scraped_urls = set()
@@ -31,7 +32,7 @@ def email_scraper(data:list[str]):
 
                 path = url[:url.rfind('/')+1] if '/' in parts.path else url
 
-                print('[%d] Processing  %s' % (count, url))
+                # print('[%d] Processing  %s' % (count, url))
 
                 try:
                     response = requests.get(url)
@@ -61,5 +62,8 @@ def email_scraper(data:list[str]):
             return('[:c] Closing!')
 
         for mail in emails:
-            url_list.append(str(mail))
+            if (mail.split('@')[0] in filter):
+                pass
+            else:  
+                url_list.append(str(mail))
         return(url_list)

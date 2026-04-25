@@ -4,14 +4,21 @@ from collections import deque
 
 with open('Potential Clients - Sheet1.csv', 'r', newline='')as file:
     url_list=[]
+    company_list=[]
     reader = csv.DictReader(file)
     for row in reader:
         if row['Current Website'] != '':
             # print(email_scraper_fn.email_scraper(row['Current Website']))
             url_list.append(email_scraper_fn.email_scraper(row['Current Website']))
+            company_list.append(row['Business Name'])
         else:
             url_list.append('No Website')
-        print(url_list)
+            company_list.append(row['Business Name'])
+    
+    for i in range(len(url_list)):
+        if ('wix' in url_list[i]):
+            url_list[i] = 'Wix Website'
+        print(f'{company_list[i]}: {url_list[i]}')
 
 # target_url = str(input('[c:] Provide URL of Target to Scan: '))
 # urls = deque([target_url])
