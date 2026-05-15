@@ -2,18 +2,42 @@ from bs4 import BeautifulSoup
 import requests, requests.exceptions, urllib.parse, re, csv, email_scraper_fn
 from collections import deque
 
-with open('Potential Clients - Sheet1.csv', 'r', newline='')as file:
+# Prompt scan level for CSV-driven runs
+level = input('[c:] Select scan level for CSV run (1 = site-only, 2 = deep scan) [1/2]: ').strip()
+if level not in ('1', '2'):
+    level = '2'
+
+headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+}
+
+# Max emails per site for CSV run (0 = no limit)
+email_limit_input = input('[c:] Max emails per site (0 = no limit) [default 0]: ').strip()
+try:
+    email_limit = int(email_limit_input)
+    if email_limit <= 0:
+        email_limit = None
+except:
+    email_limit = None
+
+with open('Sponsor Mastersheet - Sheet1.csv', 'r', newline='')as file:
     url_list=[]
     company_list=[]
     reader = csv.DictReader(file)
+    row_count = 0
     for row in reader:
-        if row['Current Website'] != '':
-            # print(email_scraper_fn.email_scraper(row['Current Website']))
-            url_list.append(email_scraper_fn.email_scraper(row['Current Website']))
-            company_list.append(row['Business Name'])
+        row_count += 1
+        if row['Website'] != '':
+            # show processing line for each website
+            print('[%d] Processing %s' % (row_count, row['Website']))
+            # keep original behavior but pass level, headers and email_limit
+            url_list.append(email_scraper_fn.email_scraper(row['Website'], level=level, headers=headers, email_limit=email_limit))
+            company_list.append(row['Companies'])
         else:
+            print('[%d] No website for %s' % (row_count, row.get('Companies','(unknown)')))
             url_list.append('No Website')
-            company_list.append(row['Business Name'])
+            company_list.append(row['Companies'])
     
     for i in range(len(url_list)):
         if ('wix' in url_list[i]):
